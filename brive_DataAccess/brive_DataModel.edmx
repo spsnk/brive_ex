@@ -100,7 +100,6 @@
           <Property Name="ProductId" Type="Int32" Nullable="false" />
           <Property Name="BranchId" Type="Int32" Nullable="false" />
           <Property Name="BranchUnits" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Branch" Relationship="brive_dbModel.FK_Inventory_Branch" FromRole="Inventory" ToRole="Branch" />
           <NavigationProperty Name="Product" Relationship="brive_dbModel.FK_Inventory_Product" FromRole="Inventory" ToRole="Product" />
         </EntityType>
         <EntityType Name="Product">
@@ -111,7 +110,6 @@
           <Property Name="ProductName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="ProductBarcode" Type="String" Nullable="false" MaxLength="6" FixedLength="true" Unicode="true" />
           <Property Name="ProductUnitPrice" Type="Decimal" Precision="19" Scale="4" DefaultValue="0" />
-          <NavigationProperty Name="Inventories" Relationship="brive_dbModel.FK_Inventory_Product" FromRole="Product" ToRole="Inventory" />
         </EntityType>
         <Association Name="FK_Inventory_Branch">
           <End Type="brive_dbModel.Branch" Role="Branch" Multiplicity="1" />

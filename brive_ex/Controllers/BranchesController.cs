@@ -101,6 +101,57 @@ namespace brive_ex.Controllers
             return Ok(branch);
         }
 
+        // Handle Inventory
+        [Route("api/Branches/{branchId:int}/Products/{productId:int}")]
+        [HttpPut]
+        public IHttpActionResult PutInventory(int branchId, int productId, Inventory inventory) {
+            Branch branch = db.Branches.Find(branchId);
+            Product product = db.Products.Find(productId);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (branch == null || product == null)
+            {
+                return BadRequest();
+            }
+
+            if (branchId != inventory.BranchId && productId != inventory.ProductId)
+            {
+                db.Inventories.Add(inventory);
+            }
+            else
+            {
+                Inventory old_inventory = db.Inventories.Find(productId, branchId);
+                old_inventory.BranchUnits += inventory.BranchUnits;
+
+                if(old_inventory.BranchUnits < 0)
+                {
+                    return BadRequest();
+                }
+            }
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BranchExists(branchId) || !(db.Products.Count(e => e.ProductId == productId) > 0) )
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

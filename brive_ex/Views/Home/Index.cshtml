@@ -1,73 +1,135 @@
-﻿<div class="jumbotron">
-    <h1>ASP.NET C# API</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS, and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+﻿@{
+    ViewBag.Title = "Consumo de API";
+}
 <div class="row">
-    <div class="col-md-4">
-        <h2>Sucursales</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                </tr>
-            </thead>
-            <tbody id="branches">
-            </tbody>
-        </table>
+    <div class="col-md-5">
+        <h2>Inventario de sucursales</h2>
+        <div id="branches">
+        </div>
         <h3>Agregar sucursal</h3>
         <form id="newBranch" method="post">
-            <p>
+            <div class="form-group">
                 <label for="BranchName">Nombre:</label>
-                <input type="text" name="BranchName" />
-            </p>
-            <input type="button" id="saveBranch" value="Agregar" />
+                <input type="text" class="form-control" name="BranchName" placeholder="Nombre" required/>
+            </div>
+            <input type="button" class="btn btn-primary" id="saveBranch" value="Agregar" />
         </form>
     </div>
     <div class="col-md-4">
         <h2>Productos</h2>
-        <table class="table">
-            <thead>
+        <table class="table table-light table-striped">
+            <thead  class="thead-light">
                 <tr>
-                    <th>ID</th>
                     <th>Nombre</th>
                     <th>Código de barras</th>
                     <th>Precio unitario</th>
                 </tr>
             </thead>
-            <tbody id="branches">
+            <tbody id="products">
             </tbody>
         </table>
+
+        <h3>Agregar producto</h3>
+        <form id="newProduct" method="post">
+            <div class="form-group">
+                <label for="ProductName">Nombre:</label>
+                <input type="text" class="form-control" name="ProductName" placeholder="Nombre" required />
+            </div>
+            <div class="form-group">
+                <label for="ProductBarcode">Codigo de barras:</label>
+                <input type="text" class="form-control" name="ProductBarcode" placeholder="100010" required />
+            </div>
+            <div class="form-group">
+                <label for="ProductUnitPrice">Precio unitario:</label>
+                <input type="number" pattern="^\d*(\.\d{0,2})?$" class="form-control" name="ProductUnitPrice" placeholder="5.00" required />
+            </div>
+            <input type="button" class="btn btn-primary" id="saveProduct" value="Agregar" />
+        </form>
     </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301872">Learn more &raquo;</a></p>
+    <div class="col-md-3">
+        <h2>Existencias</h2>
+        <form id="newInventory" method="post">
+            <div class="form-group">
+                <label for="BranchId">Sucursal:</label>
+                <select id="branchid" class="form-control" name="BranchId" required></select>
+            </div>
+            <div class="form-group">
+                <label for="ProductId">Producto:</label>
+                <select id="productid" class="form-control" name="ProductId" required></select>
+            </div>
+            <div class="form-group">
+                <label for="BranchUnits">Cantidad:</label>
+                <input type="number" class="form-control" pattern="^\d*$" placeholder="0" name="BranchUnits" required/>
+            </div>
+            <input type="button" class="btn btn-primary" id="modifyInventory" value="Modificar" />
+        </form>
     </div>
 </div>
 @section scripts{
     <script type="text/javascript">
         function getBranches() {
             $('#branches').empty();
-            $.getJSON('/api/branches', function (contactsJsonPayload) {
+            $('#branchid').empty();
+            $.getJSON('/api/Branches', function (contactsJsonPayload) {
                 $(contactsJsonPayload).each(function (i, item) {
-                    $('#branches').append('<tr> <td>'+ item.BranchId + '</td> <td>' + item.BranchName + '</td></tr>');
+                    let table = $('<table></table>').addClass('table table-light table-striped');
+                    let thead = '<thead class="thead-light"><tr><th>Sucursal ' + item.BranchName +
+                        '</th></tr><tr><th>Producto</th><th>Código de barras</th><th>Cantidad</th><th>Precio unitario</th></tr></thead>';
+                    let tbody = $('<tbody></tbody>');
+                    item.Inventories.forEach((inv) => {
+                        tbody.append('<tr> <td>' + inv.Product.ProductName + '</td> <td>' + inv.Product.ProductBarcode + '</td><td>' + inv.BranchUnits + '</td><td>$' + inv.Product.ProductUnitPrice.toFixed(2) + '</td></tr>');
+                    });
+                    table.append(thead, tbody);
+                    $('#branchid').append('<option value="' + item.BranchId + '">' + item.BranchName + '</option>');
+                    $('#branches').append(table);
+                });
+            });
+        }
+        function getProducts() {
+            $('#products').empty();
+            $('#productid').empty();
+            $.getJSON('/api/Products', function (contactsJsonPayload) {
+                $(contactsJsonPayload).each(function (i, item) {
+                    $('#products').append('<tr> <td>' + item.ProductName + '</td> <td>' + item.ProductBarcode + ' </td> <td>$' + item.ProductUnitPrice.toFixed(2) + '</td></tr>');
+                    $('#productid').append('<option value="' + item.ProductId + '">' + item.ProductName + '</option>');
                 });
             });
         }
         $(
-            getBranches()
+            getBranches(),
+            getProducts()
         );
         $('#saveBranch').click(function () {
             $.post("/api/Branches",
                 $("#newBranch").serialize(),
                 function (value) {
-                    $("#newBranch").reset();
+                    $("#newBranch").trigger('reset');
                     getBranches();
                 },
                 "json"
             );
+        });
+        $('#saveProduct').click(function () {
+            $.post("/api/Products",
+                $("#newProduct").serialize(),
+                function (value) {
+                    $("#newProduct").trigger('reset');
+                    getProducts();
+                    getBranches();
+                },
+                "json"
+            );
+        });
+        $('#modifyInventory').click(function () {
+            $.ajax({
+                url: "/api/Branches/" + $('#branchid').val() + "/Products/" + $('#productid').val(),
+                type: 'PUT',
+                data: $("#newInventory").serialize(),
+                success: function (result) {
+                    $("#newInventory").trigger('reset');
+                    getBranches();
+                }
+            });
         });
     </script>
 }

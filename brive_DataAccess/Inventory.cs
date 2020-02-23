@@ -18,7 +18,6 @@ namespace brive_DataAccess
         public int BranchId { get; set; }
         public int BranchUnits { get; set; }
     
-        public virtual Branch Branch { get; set; }
         public virtual Product Product { get; set; }
     }
 }

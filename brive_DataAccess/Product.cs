@@ -18,15 +18,11 @@ namespace brive_DataAccess
         public Product()
         {
             this.ProductUnitPrice = 0m;
-            this.Inventories = new HashSet<Inventory>();
         }
     
         public int ProductId { get; set; }
         public string ProductName { get; set; }
         public string ProductBarcode { get; set; }
         public Nullable<decimal> ProductUnitPrice { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Inventory> Inventories { get; set; }
     }
 }
