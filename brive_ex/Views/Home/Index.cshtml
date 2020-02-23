@@ -1,0 +1,73 @@
+﻿<div class="jumbotron">
+    <h1>ASP.NET C# API</h1>
+    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS, and JavaScript.</p>
+    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <h2>Sucursales</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                </tr>
+            </thead>
+            <tbody id="branches">
+            </tbody>
+        </table>
+        <h3>Agregar sucursal</h3>
+        <form id="newBranch" method="post">
+            <p>
+                <label for="BranchName">Nombre:</label>
+                <input type="text" name="BranchName" />
+            </p>
+            <input type="button" id="saveBranch" value="Agregar" />
+        </form>
+    </div>
+    <div class="col-md-4">
+        <h2>Productos</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Código de barras</th>
+                    <th>Precio unitario</th>
+                </tr>
+            </thead>
+            <tbody id="branches">
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-4">
+        <h2>Web Hosting</h2>
+        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
+        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301872">Learn more &raquo;</a></p>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        function getBranches() {
+            $('#branches').empty();
+            $.getJSON('/api/branches', function (contactsJsonPayload) {
+                $(contactsJsonPayload).each(function (i, item) {
+                    $('#branches').append('<tr> <td>'+ item.BranchId + '</td> <td>' + item.BranchName + '</td></tr>');
+                });
+            });
+        }
+        $(
+            getBranches()
+        );
+        $('#saveBranch').click(function () {
+            $.post("/api/Branches",
+                $("#newBranch").serialize(),
+                function (value) {
+                    $("#newBranch").reset();
+                    getBranches();
+                },
+                "json"
+            );
+        });
+    </script>
+}

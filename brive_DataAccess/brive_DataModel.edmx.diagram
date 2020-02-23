@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="1fc84415d234469a89f7672458faaf45" Name="Diagram1" >
+        <EntityTypeShape EntityType="brive_dbModel.Branch" Width="1.5" PointX="0.75" PointY="1" />
+        <EntityTypeShape EntityType="brive_dbModel.Inventory" Width="1.5" PointX="3" PointY="0.875" />
+        <EntityTypeShape EntityType="brive_dbModel.Product" Width="1.5" PointX="0.75" PointY="3.875" />
+        <AssociationConnector Association="brive_dbModel.FK_Inventory_Branch" />
+        <AssociationConnector Association="brive_dbModel.FK_Inventory_Product" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
