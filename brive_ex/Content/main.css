@@ -13,3 +13,14 @@
     pointer-events: none;
     color: #aaa;
 }
+
+th {
+    cursor: pointer;
+    vertical-align: middle !important;
+}
+    th:hover {
+        background-color: rgba(84, 118, 189, 30) !important;
+        color: whitesmoke !important;
+        transition: all 0.5s ease;
+        border-radius: 10px;
+    }

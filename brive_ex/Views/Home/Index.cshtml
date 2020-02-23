@@ -1,7 +1,7 @@
 ﻿@{
     ViewBag.Title = "Consumo de API";
 }
-<div class="row">
+<div class="row" id="data-container">
     <div class="col-md-5">
         <h2>Inventario de sucursales</h2>
         <div id="branches">
@@ -104,8 +104,8 @@
                 $('#branchid').empty();
                 $(json).each(function (i, item) {
                     let table = $('<table></table>').addClass('table table-light table-striped');
-                    let thead = '<thead class="thead-light"><tr><th>Sucursal ' + item.BranchName +
-                        '</th></tr><tr><th>Producto</th><th>Código de barras</th><th>Cantidad</th><th>Precio unitario</th></tr></thead>';
+                    let thead = '<thead class="thead-light"><caption style="caption-side:top;">Sucursal ' + item.BranchName +
+                        '</caption><tr><th>Producto</th><th>Código de barras</th><th>Cantidad</th><th>Precio unitario</th></tr></thead>';
                     let tbody = $('<tbody></tbody>');
                     item.Inventories.forEach((inv) => {
                         tbody.append('<tr> <td>' + inv.Product.ProductName + '</td> <td>' + inv.Product.ProductBarcode + '</td><td>' + inv.BranchUnits + '</td><td>$' + inv.Product.ProductUnitPrice.toFixed(2) + '</td></tr>');
@@ -229,5 +229,21 @@
                 }
             });
         });
+        function thclick() {
+            console.log("click!");
+            var table = $(this).parents('table').eq(0)
+            var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()))
+            this.asc = !this.asc
+            if (!this.asc){rows = rows.reverse()}
+            for (var i = 0; i < rows.length; i++){table.append(rows[i])}
+        }
+        function comparer(index) {
+            return function(a, b) {
+                var valA = getCellValue(a, index), valB = getCellValue(b, index)
+                return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB)
+            }
+        }
+        function getCellValue(row, index) { return $(row).children('td').eq(index).text() }
+        $('#data-container').on('click', 'th', thclick);
     </script>
 }
