@@ -12,16 +12,28 @@ using brive_DataAccess;
 
 namespace brive_ex.Controllers
 {
+    /// <summary>
+    /// Controlador de Productos.
+    /// </summary>
     public class ProductsController : ApiController
     {
-        private brive_dbEntities db = new brive_dbEntities();
+        private readonly brive_dbEntities db = new brive_dbEntities();
 
+        /// <summary>
+        /// Hace una consulta de todos los productos registrados.
+        /// </summary>
+        /// <returns>Lista de Objetos &lt;Product&gt; IQueryable&lt;Product&gt;</returns>
         // GET: api/Products
         public IQueryable<Product> GetProducts()
         {
             return db.Products;
         }
 
+        /// <summary>
+        /// Hace una consulta de producto, dado un ID.
+        /// </summary>
+        /// <param name="id">ID de Producto a consultar.</param>
+        /// <returns>Objeto &lt;Product&gt; consultado.</returns>
         // GET: api/Products/5
         [ResponseType(typeof(Product))]
         public IHttpActionResult GetProduct(int id)
@@ -35,6 +47,12 @@ namespace brive_ex.Controllers
             return Ok(product);
         }
 
+        /// <summary>
+        /// Modifica la Información de un producto.
+        /// </summary>
+        /// <param name="id">ID de producto a modificar.</param>
+        /// <param name="product">Objeto &lt;Product&gt;</param>
+        /// <returns>&lt;void&gt;</returns>
         // PUT: api/Products/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutProduct(int id, Product product)
@@ -70,6 +88,11 @@ namespace brive_ex.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        /// <summary>
+        /// Registra un nuevo producto.
+        /// </summary>
+        /// <param name="product">Objeto &lt;Product&gt;</param>
+        /// <returns>Objeto &lt;Product&gt; eliminado.</returns>
         // POST: api/Products
         [ResponseType(typeof(Product))]
         public IHttpActionResult PostProduct(Product product)
@@ -85,6 +108,11 @@ namespace brive_ex.Controllers
             return CreatedAtRoute("DefaultApi", new { id = product.ProductId }, product);
         }
 
+        /// <summary>
+        /// Elimina un Producto, dado un ID.
+        /// </summary>
+        /// <param name="id">ID del producto a eliminar.</param>
+        /// <returns>&lt;Product&gt;</returns>
         // DELETE: api/Products/5
         [ResponseType(typeof(Product))]
         public IHttpActionResult DeleteProduct(int id)
@@ -101,6 +129,11 @@ namespace brive_ex.Controllers
             return Ok(product);
         }
 
+        /// <summary>
+        /// Hace una busqueda parcial con base en el nombre del producto.
+        /// </summary>
+        /// <param name="term">Termino a buscar en el nombre de los productos.</param>
+        /// <returns>Lista de Objetos &lt;Product&gt; IQueryable&lt;Product&gt;</returns>
         [Route("api/Products/Search/{term}")]
         [HttpGet]
         public IQueryable<Product> SearchProduct(string term)

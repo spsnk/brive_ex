@@ -17,7 +17,7 @@
     </div>
     <div class="col-md-4">
         <h2>Productos</h2>
-        <table class="table table-light table-striped">
+        <table id="productsTable" class="table table-light table-striped" style="display:none;">
             <thead  class="thead-light">
                 <tr>
                     <th>Nombre</th>
@@ -59,23 +59,49 @@
             </div>
             <div class="form-group">
                 <label for="BranchUnits">Cantidad:</label>
-                <input type="number" class="form-control" pattern="^\d*$" placeholder="0" name="BranchUnits" required />
+                <input id="unitQuantity" type="number" class="form-control" pattern="^\d*$" placeholder="0" name="BranchUnits" required />
             </div>
             <input type="button" class="btn btn-primary" id="modifyInventory" value="Modificar" />
         </form>
-        <h2>Buscar Producto</h2>
+        <h2>Buscar y editar Producto</h2>
         <div class="form-group has-search">
             <span class="fa fa-search form-control-feedback"></span>
             <input class="form-control" type="text" id="searchProduct" name="mpvalue" placeholder="Buscar" />
         </div>
+        <form id="editProduct">
+            <div class="form-group">
+                <label for="ProductName">ID:</label>
+                <input id="e_pID" type="number" readonly class="form-control" name="ProductId" placeholder="0" required />
+            </div>
+            <div class="form-group">
+                <label for="ProductName">Nombre:</label>
+                <input id="e_pN" type="text" class="form-control" name="ProductName" placeholder="Nombre" required />
+            </div>
+            <div class="form-group">
+                <label for="ProductBarcode">Codigo de barras:</label>
+                <input id="e_pBC" type="text" class="form-control" name="ProductBarcode" placeholder="100010" required />
+            </div>
+            <div class="form-group">
+                <label for="ProductUnitPrice">Precio unitario:</label>
+                <input id="e_pUP" type="number" pattern="^\d*(\.\d{0,2})?$" class="form-control" name="ProductUnitPrice" placeholder="5.00" required />
+            </div>
+            <input type="button" class="btn btn-primary" id="saveEditProduct" value="Guardar" />
+            <input type="button" class="btn btn-danger" id="deleteProduct" value="Borrar" />
+            <div id="dialog-confirm" title="¿Borrar Producto?" style="display:none;">
+                <p>
+                <span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>
+                El producto sera borrado junto con cualquier referencia en sucursal. ¿Desea Continuar?
+                </p>
+            </div>
+        </form>
     </div>
 </div>
 @section scripts{
     <script type="text/javascript">
         function getBranches() {
-            $('#branches').empty();
-            $('#branchid').empty();
             $.getJSON('/api/Branches', function (json) {
+                $('#branches').hide().empty();
+                $('#branchid').empty();
                 $(json).each(function (i, item) {
                     let table = $('<table></table>').addClass('table table-light table-striped');
                     let thead = '<thead class="thead-light"><tr><th>Sucursal ' + item.BranchName +
@@ -88,17 +114,19 @@
                     $('#branchid').append('<option value="' + item.BranchId + '">' + item.BranchName + '</option>');
                     $('#branches').append(table);
                 });
+                $('#branches').fadeIn();
             });
         }
         function getProducts() {
-            $('#products').empty();
-            $('#productid').empty();
-            cache = [];
             $.getJSON('/api/Products', function (json) {
+                $('#productsTable').hide();
+                $('#products').empty();
+                $('#productid').empty();
                 $(json).each(function (i, item) {
                     $('#products').append('<tr> <td>' + item.ProductName + '</td> <td>' + item.ProductBarcode + ' </td> <td>$' + item.ProductUnitPrice.toFixed(2) + '</td></tr>');
                     $('#productid').append('<option value="' + item.ProductId + '">' + item.ProductName + '</option>');
                 });
+                $('#productsTable').fadeIn();
             });
         }
         $(
@@ -118,13 +146,18 @@
                                 pid: item.ProductId
                             };
                         }));
-                    },
-                    select: function (event, ui) {
-                        $.getJSON('/api/Products/'+ui.pid, function (json) {
-                            //$('#products').append('<tr> <td>' + item.ProductName + '</td> <td>' + item.ProductBarcode + ' </td> <td>$' + item.ProductUnitPrice.toFixed(2) + '</td></tr>');
-                        });
                     }
                 })
+            },
+            select: function (event, ui) {
+                event.preventDefault();
+                $.getJSON('/api/Products/' + ui.item.pid, function (json) {
+                    $('#searchProduct').val('');
+                    $('#e_pID').val(json.ProductId);
+                    $('#e_pN').val(json.ProductName).focus();
+                    $('#e_pBC').val(json.ProductBarcode);
+                    $('#e_pUP').val(json.ProductUnitPrice.toFixed(2));
+                });
             }
         });
         $('#saveBranch').click(function () {
@@ -150,12 +183,49 @@
         });
         $('#modifyInventory').click(function () {
             $.ajax({
-                url: "/api/Branches/" + $('#branchid').val() + "/Products/" + $('#productid').val(),
+                url: "/api/Branches/" + $('#branchid').val() + "/Products/" + $('#productid').val()+'/?units='+$('#unitQuantity').val(),
                 type: 'PUT',
-                data: $("#newInventory").serialize(),
+                //data: $("#newInventory").serialize(),
                 success: function (result) {
                     $("#newInventory").trigger('reset');
                     getBranches();
+                }
+            });
+        });
+        $('#saveEditProduct').click(function () {
+            $.ajax({
+                url: "/api/Products/"+ $('#e_pID').val(),
+                type: 'PUT',
+                data: $("#editProduct").serialize(),
+                success: function (result) {
+                    $("#editProduct").trigger('reset');
+                    getProducts();
+                    getBranches();
+                }
+            });
+        });
+        $('#deleteProduct').click(function () {
+            $( "#dialog-confirm" ).show().dialog({
+                resizable: false,
+                height: "auto",
+                width: 400,
+                modal: true,
+                buttons: {
+                "Borrar": function() {
+                    $( this ).dialog( "close" );
+                    $.ajax({
+                        url: "/api/Products/"+ $('#e_pID').val(),
+                        type: 'DELETE',
+                        success: function (result) {
+                            $("#editProduct").trigger('reset');
+                            getProducts();
+                            getBranches();
+                        }
+                    });
+                },
+                "Cancelar": function() {
+                    $( this ).dialog( "close" );
+                }
                 }
             });
         });

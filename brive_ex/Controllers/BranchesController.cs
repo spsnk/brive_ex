@@ -12,16 +12,28 @@ using brive_DataAccess;
 
 namespace brive_ex.Controllers
 {
+    /// <summary>
+    /// Controlador de Sucursales.
+    /// </summary>
     public class BranchesController : ApiController
     {
-        private brive_dbEntities db = new brive_dbEntities();
+        private readonly brive_dbEntities db = new brive_dbEntities();
 
+        /// <summary>
+        /// Hace una consulta de todas las sucursales registradas.
+        /// </summary>
+        /// <returns>Lista de Objetos &lt;Branch&gt; IQueryable&lt;Branch&gt;</returns>
         // GET: api/Branches
         public IQueryable<Branch> GetBranches()
         {
             return db.Branches;
         }
 
+        /// <summary>
+        /// Hace una consulta de sucursal, dado un ID.
+        /// </summary>
+        /// <param name="id">ID de sucursal a consultar.</param>
+        /// <returns>Objeto &lt;Branch&gt;</returns>
         // GET: api/Branches/5
         [ResponseType(typeof(Branch))]
         public IHttpActionResult GetBranch(int id)
@@ -35,6 +47,12 @@ namespace brive_ex.Controllers
             return Ok(branch);
         }
 
+        /// <summary>
+        /// Modifica los datos de una sucursal, dado un ID.
+        /// </summary>
+        /// <param name="id">ID de la sucursal a modificar.</param>
+        /// <param name="branch">Objeto &lt;Branch&gt;</param>
+        /// <returns>&lt;void&gt;</returns>
         // PUT: api/Branches/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutBranch(int id, Branch branch)
@@ -70,6 +88,11 @@ namespace brive_ex.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        /// <summary>
+        /// Registra una nueva sucursal.
+        /// </summary>
+        /// <param name="branch">Objeto &lt;Branch&gt;</param>
+        /// <returns>Objeto &lt;Branch&gt; registrado.</returns>
         // POST: api/Branches
         [ResponseType(typeof(Branch))]
         public IHttpActionResult PostBranch(Branch branch)
@@ -85,6 +108,11 @@ namespace brive_ex.Controllers
             return CreatedAtRoute("DefaultApi", new { id = branch.BranchId }, branch);
         }
 
+        /// <summary>
+        /// Elimina una sucursal, dado un ID.
+        /// </summary>
+        /// <param name="id">ID de la sucursal a eliminar.</param>
+        /// <returns>Objeto &lt;Branch&gt; eliminado.</returns>
         // DELETE: api/Branches/5
         [ResponseType(typeof(Branch))]
         public IHttpActionResult DeleteBranch(int id)
@@ -101,10 +129,17 @@ namespace brive_ex.Controllers
             return Ok(branch);
         }
 
+        /// <summary>
+        /// Modifica la información del inventario de una sucursal, para un producto dado.
+        /// </summary>
+        /// <param name="branchId">ID de la sucursal a modificar.</param>
+        /// <param name="productId">ID del producto a modificar.</param>
+        /// <param name="units">Cantidad de unidades a agregar/remover.</param>
+        /// <returns>&lt;void&gt;</returns>
         // Handle Inventory
-        [Route("api/Branches/{branchId:int}/Products/{productId:int}")]
+        [Route("api/Branches/{branchId:int}/Products/{productId:int}/")]
         [HttpPut]
-        public IHttpActionResult PutInventory(int branchId, int productId, Inventory inventory) {
+        public IHttpActionResult PutInventory(int branchId, int productId, int units) {
             Branch branch = db.Branches.Find(branchId);
             Product product = db.Products.Find(productId);
 
@@ -117,22 +152,15 @@ namespace brive_ex.Controllers
             {
                 return BadRequest();
             }
+            
+            Inventory inventory = db.Inventories.Find(productId, branchId);
+            inventory.BranchUnits += units;
 
-            if (branchId != inventory.BranchId && productId != inventory.ProductId)
+            if(inventory.BranchUnits < 0)
             {
-                db.Inventories.Add(inventory);
+                return BadRequest();
             }
-            else
-            {
-                Inventory old_inventory = db.Inventories.Find(productId, branchId);
-                old_inventory.BranchUnits += inventory.BranchUnits;
-
-                if(old_inventory.BranchUnits < 0)
-                {
-                    return BadRequest();
-                }
-            }
-
+            
             try
             {
                 db.SaveChanges();
