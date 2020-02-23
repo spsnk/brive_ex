@@ -21,7 +21,16 @@ namespace brive_ex
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+                      "~/Content/site.css",
+                      "~/Content/font-awesome.css",
+                      "~/Content/main.css"));
+            bundles.Add(new ScriptBundle("~/bundles/jqueryui").Include(
+                      "~/Scripts/jquery-ui-{version}.js"));
+            bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
+                      "~/Content/themes/base/core.css",
+                      "~/Content/themes/base/all.css",
+                      "~/Content/themes/base/theme.css",
+                      "~/Content/themes/base/jquery.ui.css"));
         }
     }
 }

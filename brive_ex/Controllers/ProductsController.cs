@@ -101,6 +101,14 @@ namespace brive_ex.Controllers
             return Ok(product);
         }
 
+        [Route("api/Products/Search/{term}")]
+        [HttpGet]
+        public IQueryable<Product> SearchProduct(string term)
+        {
+            List<Product> res = db.Products.Where(x => x.ProductName.Contains(term)).ToList();
+            return res.AsQueryable();
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

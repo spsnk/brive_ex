@@ -59,10 +59,15 @@
             </div>
             <div class="form-group">
                 <label for="BranchUnits">Cantidad:</label>
-                <input type="number" class="form-control" pattern="^\d*$" placeholder="0" name="BranchUnits" required/>
+                <input type="number" class="form-control" pattern="^\d*$" placeholder="0" name="BranchUnits" required />
             </div>
             <input type="button" class="btn btn-primary" id="modifyInventory" value="Modificar" />
         </form>
+        <h2>Buscar Producto</h2>
+        <div class="form-group has-search">
+            <span class="fa fa-search form-control-feedback"></span>
+            <input class="form-control" type="text" id="searchProduct" name="mpvalue" placeholder="Buscar" />
+        </div>
     </div>
 </div>
 @section scripts{
@@ -70,8 +75,8 @@
         function getBranches() {
             $('#branches').empty();
             $('#branchid').empty();
-            $.getJSON('/api/Branches', function (contactsJsonPayload) {
-                $(contactsJsonPayload).each(function (i, item) {
+            $.getJSON('/api/Branches', function (json) {
+                $(json).each(function (i, item) {
                     let table = $('<table></table>').addClass('table table-light table-striped');
                     let thead = '<thead class="thead-light"><tr><th>Sucursal ' + item.BranchName +
                         '</th></tr><tr><th>Producto</th><th>Código de barras</th><th>Cantidad</th><th>Precio unitario</th></tr></thead>';
@@ -88,8 +93,9 @@
         function getProducts() {
             $('#products').empty();
             $('#productid').empty();
-            $.getJSON('/api/Products', function (contactsJsonPayload) {
-                $(contactsJsonPayload).each(function (i, item) {
+            cache = [];
+            $.getJSON('/api/Products', function (json) {
+                $(json).each(function (i, item) {
                     $('#products').append('<tr> <td>' + item.ProductName + '</td> <td>' + item.ProductBarcode + ' </td> <td>$' + item.ProductUnitPrice.toFixed(2) + '</td></tr>');
                     $('#productid').append('<option value="' + item.ProductId + '">' + item.ProductName + '</option>');
                 });
@@ -99,6 +105,28 @@
             getBranches(),
             getProducts()
         );
+        $('#searchProduct').autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    type : 'GET',
+                    url : "/api/Products/Search/"+request.term,
+                    success : function(data) {
+                        response($.map(data, function(item) {
+                            return {
+                                label: item.ProductName,
+                                value: item.ProductName,
+                                pid: item.ProductId
+                            };
+                        }));
+                    },
+                    select: function (event, ui) {
+                        $.getJSON('/api/Products/'+ui.pid, function (json) {
+                            //$('#products').append('<tr> <td>' + item.ProductName + '</td> <td>' + item.ProductBarcode + ' </td> <td>$' + item.ProductUnitPrice.toFixed(2) + '</td></tr>');
+                        });
+                    }
+                })
+            }
+        });
         $('#saveBranch').click(function () {
             $.post("/api/Branches",
                 $("#newBranch").serialize(),
