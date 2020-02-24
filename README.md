@@ -1,5 +1,5 @@
 
-## Cliente
+## Cliente de consumo de API
 ![Cliente de consumo de API](docs/images/client.png)
 En esta pantalla se pueden observar, de izquierda a derecha:
 
@@ -12,7 +12,7 @@ En esta pantalla se pueden observar, de izquierda a derecha:
 Así mismo, se incluye un vinculo en la parte superior con un enlace a la documentación de la API [6], donde se describen todos los posibles verbos REST, y el formato de petición y respuesta.
 ![Documentación de API](docs/images/api.png)
 
-## Server
+## API C#
 
 * El código de la api se encuentra en el proyecto brive_ex, en la ruta [`brive_ex/Controllers/`](brive_ex/Controllers/), se encuentran los controladores `BranchesController.cs` y `ProductsController.cs`.
 * El DataModel es parte del proyecto `brive_DataAccess`, en la ruta [`brive_DataAccess/`](brive_DataAccess/), las clases `Branch.cs`, `Product.cs`, y `Inventory.cs`.
