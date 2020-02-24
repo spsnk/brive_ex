@@ -1,3 +1,4 @@
+
 ## Cliente
 ![Cliente de consumo de API](docs/images/client.png)
 En esta pantalla se pueden observar, de izquierda a derecha:
@@ -10,6 +11,13 @@ En esta pantalla se pueden observar, de izquierda a derecha:
 
 Así mismo, se incluye un vinculo en la parte superior con un enlace a la documentación de la API [6], donde se describen todos los posibles verbos REST, y el formato de petición y respuesta.
 ![Documentación de API](docs/images/api.png)
+
+## Server
+
+* El código de la api se encuentra en el proyecto brive_ex, en la ruta `brive_ex/Controllers/`, se encuentran los controladores `BranchesController.cs` y `ProductsController.cs`.
+* El DataModel es parte del proyecto `brive_DataAccess`, en la ruta `brive_DataAccess/`, las clases `Branch.cs`, `Product.cs`, y `Inventory.cs`.
+* La definicion de base de datos ER se encuentra en la ruta `docs/files/db.sql`.
+* El archivo de base de datos se encuentra en la ruta `brive_ex/App_Data/brive_db.mdf`.
 
 ### Error con roslyn/csc.exe
 El error en el que no se puede encontrar `bin/roslyn/csc.exe` se debe a un bug con el metodo build del compilador, especialmente cuando se carga un repositorio y se trata de correr la solución.
